@@ -253,6 +253,26 @@ def prompt_example_count() -> int | None:
     return int(raw.strip()) if raw is not None else None
 
 
+def prompt_spec() -> str | None:
+    """
+    Ask the user for an optional free-text specification / authoring note.
+
+    This lets the author tell the generation agent exactly what to focus on —
+    e.g. "test date phrases like 28th of October" or "use family vocabulary only
+    in questions".  Leaving it blank is fine; the agent will rely on tags alone.
+
+    Returns the spec string (may be empty), or None if the user cancels.
+    """
+    raw = questionary.text(
+        "Optional spec — any specific instructions for the AI agent?\n"
+        "  (leave blank to skip, or type)",
+        default="",
+        style=STYLE,
+    ).ask()
+
+    return raw.strip() if raw is not None else None
+
+
 def prompt_tags(tag_choices: list) -> list[str] | None:
     """
     Multi-select checkbox where the user picks any combination of topic/grammar tags.
@@ -317,12 +337,21 @@ def create_one_exercise(tag_choices: list) -> dict | None:
     if tags is None:
         return None
 
+    # Step 4 — optional spec
+    spec = prompt_spec()
+    if spec is None:
+        return None
+
     # Preview box so the user can review before committing
     print()
     print("  ┌─ Exercise preview ─────────────────────────────────────┐")
     print(f"  │  Type   : {type_label}")
     print(f"  │  Count  : {count} example(s)")
     print(f"  │  Tags   : {', '.join(tags)}")
+    if spec:
+        # Wrap long specs so the preview box stays readable
+        spec_display = spec if len(spec) <= 46 else spec[:43] + "…"
+        print(f"  │  Spec   : {spec_display}")
     print("  └────────────────────────────────────────────────────────┘")
     print()
 
@@ -340,6 +369,7 @@ def create_one_exercise(tag_choices: list) -> dict | None:
         "type_label": type_label,
         "count":      count,
         "tags":       tags,
+        "spec":       spec,
     }
 
 
@@ -367,6 +397,8 @@ def print_exercise_list(exercises: list[dict]) -> None:
         print(f"  [{i:>2}]  {ex['type_label']}")
         print(f"         Count : {ex['count']} example(s)")
         print(f"         Tags  : {tags_str}")
+        if ex.get("spec"):
+            print(f"         Spec  : {ex['spec']}")
         print()
 
 
@@ -409,6 +441,7 @@ def build_ex_content(exercises: list[dict]) -> str:
         "# Fields:",
         "#   type  — exercise format (see list below)",
         "#   count — how many items to generate for this exercise",
+        "#   spec  — (optional) free-text instruction to the AI agent",
         "#   tags  — what knowledge the exercise should draw from",
         "#",
         "# Exercise types:",
@@ -431,6 +464,8 @@ def build_ex_content(exercises: list[dict]) -> str:
         lines.append(f"[exercise:{i}]")
         lines.append(f"type: {ex['type']}")
         lines.append(f"count: {ex['count']}")
+        if ex.get("spec"):
+            lines.append(f"spec: {ex['spec']}")
         lines.append("tags:")
         for tag in ex["tags"]:
             lines.append(f"  - {tag}")

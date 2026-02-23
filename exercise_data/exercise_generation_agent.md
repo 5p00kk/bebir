@@ -34,6 +34,7 @@ Describes what to generate.  Each `[exercise:N]` block contains:
 [exercise:1]
 type: translation_az_en
 count: 5
+spec: test date phrases like "on the 28th of October", "in 1999", "test past tense"
 tags:
   - vocab:food
   - vocab:time_expressions
@@ -41,6 +42,11 @@ tags:
 
 - `type`  — one of four exercise formats (see below)
 - `count` — number of distinct items to generate for this exercise
+- `spec`  — *(optional)* free-text instruction from the author specifying what to focus on,
+  what kinds of sentences to produce, particular patterns to practise, etc.
+  **When present, treat `spec` as a high-priority directive that overrides your own
+  choices about sentence topics, structures, and difficulty.**  The `tags` still define
+  what knowledge to draw from and what to test; `spec` tells you additional details that might not be clear by the broad selected topics.
 - `tags`  — what the exercise **must** focus on and actively test (see Tag semantics below)
 
 **Tag semantics:**
@@ -148,7 +154,7 @@ Give the learner a sentence with one word replaced by a blank; they pick from fo
 ### 1. Parse `exercises_description.ex`
 
 Read the file, extract each `[exercise:N]` block in order, and store:
-- `type`, `count`, `tags`
+- `type`, `count`, `tags`, `spec` (may be absent — treat as empty string if missing)
 
 ### 2. Create `exercise_data/outputs/exercises.ex` and write the file header
 
@@ -266,6 +272,7 @@ label: <Human-readable title>
 type: <type_id>
 tags: <comma-separated list of tags from description>
 count: <number of items generated>
+spec: <copy of the spec field verbatim, if one was given; omit this line if spec was empty>
 ```
 
 ### Item format per exercise type
