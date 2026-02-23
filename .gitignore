@@ -1,0 +1,15 @@
+.claude
+CLAUDE.md
+
+__pycache__
+
+fonts
+
+exercise_data/outputs
+
+knowledge/*
+!knowledge/format.md
+
+source_data/*
+!source_data/extraction_agent.md
+!source_data/scripts
