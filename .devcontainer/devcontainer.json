@@ -1,0 +1,7 @@
+{
+  "name": "bebir",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "remoteUser": "vscode"
+}
